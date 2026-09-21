@@ -1,8 +1,1 @@
-{
-  "name": "Takt-Rechner",
-  "short_name": "Takt-Rechner",
-  "start_url": "./",
-  "display": "standalone",
-  "background_color": "#f2f2f7",
-  "theme_color": "#f2f2f7"
-}
+{"name": "Takt-Rechner", "short_name": "Takt-Rechner", "start_url": "./", "display": "standalone"}
