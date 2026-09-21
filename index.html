@@ -1,0 +1,43 @@
+<!doctype html><html lang="de"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Takt-Rechner">
+<link rel="manifest" href="manifest.json"><title>Takt-Rechner</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#f2f2f7;color:#111;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+main{max-width:520px;margin:auto;padding:24px 16px}.card{background:white;border-radius:20px;padding:18px;margin-bottom:14px;box-shadow:0 2px 12px #0001}
+h1{font-size:30px}label{display:block;font-weight:700;margin:12px 0 7px}select,input{width:100%;padding:14px;border:1px solid #c7c7cc;border-radius:12px;font-size:18px;background:#fff}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}button{width:100%;padding:16px;border:0;border-radius:14px;background:#007aff;color:#fff;font-size:19px;font-weight:800;margin-top:18px}
+.result{font-size:19px;line-height:1.45;margin:10px 0}.big{font-size:30px;font-weight:850}.small{font-size:14px;color:#666;line-height:1.5}
+</style></head><body><main>
+<h1>⏱️ Takt-Rechner</h1>
+<div class="card">
+<label>Schicht</label><select id="shift"><option value="early">Frühschicht 06:30–14:00</option><option value="late">Spätschicht 14:00–21:30</option></select>
+<div class="row"><div><label>Start-Takt</label><select id="takt"><option value="4">Takt 4</option><option value="5">Takt 5</option><option value="6">Takt 6</option></select></div>
+<div><label>Restzeit (Min.)</label><input id="rest" type="number" min="0" max="65" value="30" inputmode="numeric"></div></div>
+<button id="go">Berechnen</button></div>
+<div class="card" id="result"><div class="small">Werte eingeben und Berechnen drücken.</div></div>
+<div class="card small"><b>Taktfolge:</b> 4 → 5 → 6 → 4 → 5 → 6 …<br><b>1 Takt:</b> 65 Minuten, davon 5 Minuten Vorfahren.<br><b>Netto-Schicht:</b> 6 h 50 min nach Pausen.</div>
+<script>
+(function(){
+ function nextTakt(t){return t===6?4:t+1}
+ document.getElementById("go").onclick=function(){
+  let start=+document.getElementById("takt").value;
+  let first=+document.getElementById("rest").value;
+  if(!Number.isFinite(first)||first<0||first>65){document.getElementById("result").innerHTML='<div class="result">Restzeit muss zwischen 0 und 65 Minuten liegen.</div>';return}
+  if(first===0) first=65;
+  let available=410,current=start,completed=0,remaining;
+  if(available<first){remaining=first-available}
+  else{
+   available-=first; completed++; current=nextTakt(current);
+   while(available>=65){available-=65;completed++;current=nextTakt(current)}
+   remaining=available===0?65:65-available;
+  }
+  document.getElementById("result").innerHTML=
+   '<div class="result">Du hörst auf <span class="big">Takt '+current+'</span> auf.</div>'+
+   '<div class="result">Dort bleiben noch <span class="big">'+remaining+' Minuten</span> übrig.</div>'+
+   '<div class="result">Vollständig beendete Takte: <b>'+completed+'</b></div>'+
+   '<div class="small">Taktfolge 4 → 5 → 6 → 4 wird automatisch berücksichtigt.</div>';
+ };
+ if("serviceWorker"in navigator)navigator.serviceWorker.register("sw.js").catch(()=>{});
+})();
+</script></main></body></html>
